@@ -1,0 +1,15 @@
+# Kernel module build files
+driver/*.ko
+driver/*.o
+driver/*.mod
+driver/*.mod.c
+driver/*.mod.o
+driver/.*.cmd
+driver/modules.order
+driver/Module.symvers
+
+# Compiled user-space binaries
+supervisor/supervisor
+worker/heartbeat_worker
+worker/event_reader
+worker/heartbeat_demo
