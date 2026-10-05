@@ -1,4 +1,4 @@
-# Sentinel – Kernel-Assisted Process Recovery System
+# KernGuard – Kernel-Assisted Process Recovery System
 
 A Linux-based system that checks whether a running process is working properly.
 
