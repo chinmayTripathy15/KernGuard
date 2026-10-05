@@ -2,29 +2,29 @@
 
 A Linux-based system that checks whether a running process is working properly.
 
-The process regularly sends a small “heartbeat” message to Sentinel to show that it is still working. If these messages stop, Sentinel detects the problem and helps restart the process using a C++ supervisor.
+The process regularly sends a small “heartbeat” message to KernalGuard to show that it is still working. If these messages stop, KernalGuard detects the problem and helps restart the process using a C++ supervisor.
 
 **Core Workflow:**  
 `MONITOR → DETECT → NOTIFY → RECOVER`
 
-## What is Sentinel ?
-Sentinel is a Linux-based system that monitors a running process and helps recover it when a problem is detected.
+## What is kernGuard ?
+KernGuard is a Linux-based system that monitors a running process and helps recover it when a problem is detected.
 
-The process regularly sends a small “heartbeat” message to Sentinel. If the heartbeat stops or the process terminates unexpectedly, Sentinel detects the problem and sends an event to a C++ supervisor.
+The process regularly sends a small “heartbeat” message to KernalGuard. If the heartbeat stops or the process terminates unexpectedly, KernalGuard detects the problem and sends an event to a C++ supervisor.
 
 The supervisor can then restart the affected process.
 
-### What Makes Sentinel Unique?
+### What Makes KernalGuard Unique?
 
-Unlike a simple user-space monitoring program, Sentinel uses a custom Linux kernel module to monitor the process and detect failures. The detected events are then handled by a C++ supervisor for automatic recovery.
+Unlike a simple user-space monitoring program, KernalGuard uses a custom Linux kernel module to monitor the process and detect failures. The detected events are then handled by a C++ supervisor for automatic recovery.
 
-This combination of **kernel-level monitoring and user-space recovery** is the key idea behind Sentinel.
+This combination of **kernel-level monitoring and user-space recovery** is the key idea behind KernalGuard.
 ## Problem Statement
 In real-world Linux systems, a process may still be running but stop responding properly.
 
 Simply checking whether the process is running does not always tell us if it is working correctly.
 
-In this project, we demonstrate this situation using a sample Linux process. The process regularly sends a small heartbeat message to Sentinel. If the heartbeat stops for a configured time, Sentinel detects the problem and generates an event.
+In this project, we demonstrate this situation using a sample Linux process. The process regularly sends a small heartbeat message to KernalGuard. If the heartbeat stops for a configured time, KernalGuard detects the problem and generates an event.
 
 The C++ supervisor can then use this event to recover the process.
 
@@ -32,7 +32,7 @@ The C++ supervisor can then use this event to recover the process.
 ## Objectives
 
 
-The main objectives of Sentinel are:
+The main objectives of KernalGuard are:
 
 - Monitor a Linux process using periodic heartbeat messages.
 - Detect when the process stops sending heartbeats within the configured time.
@@ -49,17 +49,17 @@ The main objectives of Sentinel are:
 - **Kernel Event Generation** – The Linux kernel module generates an event when a failure is detected.
 - **C++ Supervisor** – Receives failure events and handles the recovery process.
 - **Automatic Process Recovery** – Restarts the affected process after a detected failure.
-- **Character Device Interface** – User-space programs communicate with the kernel module through `/dev/sentinel`.
+- **Character Device Interface** – User-space programs communicate with the kernel module through `/dev/KernalGuard`.
 - **Process Status Tracking** – Tracks registration, process ID, heartbeat count, timeout and current state.
 
 
 ##  System Architecture
 
 
-Sentinel is divided into three main parts: a Linux kernel module, C++ user-space applications, and a shared interface.
+KernalGuard is divided into three main parts: a Linux kernel module, C++ user-space applications, and a shared interface.
 
 ```text
-                         SENTINEL
+                         KernalGuard
                             |
         +-------------------+-------------------+
         |                   |                   |
@@ -70,19 +70,19 @@ Sentinel is divided into three main parts: a Linux kernel module, C++ user-space
 +---------------+    +----------------+    +------------------+
 | driver/       |    | worker/        |    | include/         |
 |               |    |                |    |                  |
-| sentinel.c    |    | heartbeat_     |    | sentinel_uapi.h  |
+| KernalGuard.c    |    | heartbeat_     |    | KernalGuard_uapi.h  |
 | Makefile      |    | worker.cpp     |    |                  |
 |               |    |                |    | IOCTL & Event    |
-| sentinel.ko   |    | event_reader.  |    | definitions      |
+| KernalGuard.ko   |    | event_reader.  |    | definitions      |
 |               |    | cpp            |    |                  |
 +-------+-------+    +-------+--------+    +------------------+
         |                    |
-        | /dev/sentinel      |
+        | /dev/KernalGuard      |
         +---------+----------+
                   |
                   v
         +---------------------+
-        | Sentinel Kernel     |
+        | KernalGuard Kernel     |
         | Module              |
         |                     |
         | - Register process  |
@@ -113,21 +113,21 @@ Sentinel is divided into three main parts: a Linux kernel module, C++ user-space
 ```
 ## How It Works
 
-Sentinel works in four simple stages:
+KernalGuard works in four simple stages:
 
 ### 1. Monitor
 
-The C++ worker starts and registers itself with the Sentinel kernel module.
+The C++ worker starts and registers itself with the KernalGuard kernel module.
 
-It then regularly sends a small heartbeat message through `/dev/sentinel` to show that it is still working.
+It then regularly sends a small heartbeat message through `/dev/KernalGuard` to show that it is still working.
 
 ### 2. Detect
 
 The kernel module keeps track of the worker's latest heartbeat.
 
-If a heartbeat is not received within the configured timeout, Sentinel marks the process as expired.
+If a heartbeat is not received within the configured timeout, KernalGuard marks the process as expired.
 
-Sentinel can also detect when the monitored process terminates unexpectedly.
+KernalGuard can also detect when the monitored process terminates unexpectedly.
 
 ### 3. Notify
 
@@ -147,21 +147,21 @@ For a failed worker, the supervisor terminates the unhealthy process if required
 
 The new worker then starts sending heartbeats again.## How It Works
 
-Sentinel works in four simple stages:
+KernalGuard works in four simple stages:
 
 ### 1. Monitor
 
-The C++ worker starts and registers itself with the Sentinel kernel module.
+The C++ worker starts and registers itself with the KernalGuard kernel module.
 
-It then regularly sends a small heartbeat message through `/dev/sentinel` to show that it is still working.
+It then regularly sends a small heartbeat message through `/dev/KernalGuard` to show that it is still working.
 
 ### 2. Detect
 
 The kernel module keeps track of the worker's latest heartbeat.
 
-If a heartbeat is not received within the configured timeout, Sentinel marks the process as expired.
+If a heartbeat is not received within the configured timeout, KernalGuard marks the process as expired.
 
-Sentinel can also detect when the monitored process terminates unexpectedly.
+KernalGuard can also detect when the monitored process terminates unexpectedly.
 
 ### 3. Notify
 
@@ -190,7 +190,7 @@ The project is built using the following technologies:
 | Kernel Component | Linux Kernel Module |
 | Programming Languages | C, C++ |
 | User-Space | C++17 |
-| Communication | Linux Character Device (`/dev/sentinel`) |
+| Communication | Linux Character Device (`/dev/KernalGuard`) |
 | Kernel Interface | IOCTL |
 | Build System | Make, GCC, G++ |
 | Version Control | Git |
@@ -199,14 +199,14 @@ The project is built using the following technologies:
 The project is organized into separate components for kernel-space monitoring, user-space applications, shared definitions, and documentation.
 
 ```text
-Sentinel/
+KernalGuard/
 │
 ├── driver/
-│   ├── sentinel.c
+│   ├── KernalGuard.c
 │   └── Makefile
 │
 ├── include/
-│   └── sentinel_uapi.h
+│   └── KernalGuard_uapi.h
 │
 ├── worker/
 │   ├── heartbeat_worker.cpp
@@ -224,11 +224,11 @@ Sentinel/
 ```
 ## Testing & Results
 
-The Sentinel system was tested through the following practical test cases:
+The KernalGuard system was tested through the following practical test cases:
 
 ### 1. Normal Monitoring
 
-The `heartbeat_worker` was started and continuously sent heartbeat messages to Sentinel.
+The `heartbeat_worker` was started and continuously sent heartbeat messages to KernalGuard.
 
 ```text
 [WORKER PID=7823] Heartbeat #82 | STATUS=HEALTHY
@@ -246,11 +246,11 @@ The running worker was paused using:
 kill -STOP 7823
 ```
 
-After the configured timeout, Sentinel detected the missing heartbeat:
+After the configured timeout, KernalGuard detected the missing heartbeat:
 
 ```text
-Sentinel: HEARTBEAT TIMEOUT - PID 7823
-Sentinel: EVENT QUEUED type=1 pid=7823 count=1
+KernalGuard: HEARTBEAT TIMEOUT - PID 7823
+KernalGuard: EVENT QUEUED type=1 pid=7823 count=1
 ```
 
 **Result:** Timeout detection and event generation worked successfully.
@@ -289,17 +289,17 @@ The new worker started sending heartbeats with `STATUS=HEALTHY`.
 
 ### Overall Result
 
-The tests successfully demonstrated the main Sentinel workflow:
+The tests successfully demonstrated the main KernalGuard workflow:
 
 `MONITOR → DETECT → NOTIFY → RECOVER`
 ##  Build & Run
 
-Sentinel is designed to run on a Linux system. Follow the steps below in order.
+KernalGuard is designed to run on a Linux system. Follow the steps below in order.
 
 ### 1. Enter the Project Directory
 
 ```bash
-cd ~/Sentinel
+cd ~/KernalGuard
 ```
 
 ### 2. Build the Kernel Module
@@ -316,32 +316,32 @@ Build the module using the provided Makefile:
 make
 ```
 
-After a successful build, the kernel module file `sentinel.ko` will be created.
+After a successful build, the kernel module file `KernalGuard.ko` will be created.
 
-### 3. Load the Sentinel Kernel Module
+### 3. Load the KernalGuard Kernel Module
 
 Load the module into the Linux kernel:
 
 ```bash
-sudo insmod sentinel.ko
+sudo insmod KernalGuard.ko
 ```
 
 Check whether it is loaded:
 
 ```bash
-lsmod | grep sentinel
+lsmod | grep KernalGuard
 ```
 
-You should see `sentinel` in the output.
+You should see `KernalGuard` in the output.
 
-### 4. Check the Sentinel Device
+### 4. Check the KernalGuard Device
 
-Sentinel provides a Linux character device for communication with user-space applications.
+KernalGuard provides a Linux character device for communication with user-space applications.
 
 Run:
 
 ```bash
-ls -l /dev/sentinel
+ls -l /dev/KernalGuard
 ```
 
 The device should be available before starting the worker.
@@ -366,7 +366,7 @@ Run it:
 ./heartbeat_worker
 ```
 
-The worker registers with Sentinel and starts sending periodic heartbeat messages.
+The worker registers with KernalGuard and starts sending periodic heartbeat messages.
 
 Example:
 
@@ -381,7 +381,7 @@ Example:
 Open another terminal and go to the supervisor directory:
 
 ```bash
-cd ~/Sentinel/supervisor
+cd ~/KernalGuard/supervisor
 ```
 
 Compile the supervisor:
@@ -396,14 +396,14 @@ Run the supervisor:
 ./supervisor
 ```
 
-The supervisor listens for Sentinel failure events and performs recovery when the monitored worker becomes unhealthy.
+The supervisor listens for KernalGuard failure events and performs recovery when the monitored worker becomes unhealthy.
 
-### 7. Check Sentinel Kernel Logs
+### 7. Check KernalGuard Kernel Logs
 
 To view kernel-side monitoring activity:
 
 ```bash
-sudo dmesg | grep -i sentinel
+sudo dmesg | grep -i KernalGuard
 ```
 
 This can show heartbeat messages, timeout detection, and generated events.
@@ -418,31 +418,31 @@ Ctrl + C
 
 ### 9. Unload the Kernel Module
 
-After stopping the Sentinel-related programs, unload the kernel module:
+After stopping the KernalGuard-related programs, unload the kernel module:
 
 ```bash
-cd ~/Sentinel/driver
-sudo rmmod sentinel
+cd ~/KernalGuard/driver
+sudo rmmod KernalGuard
 ```
 
 The module can be loaded again whenever you want to run the project.
 ## Limitations
 
-The current version of Sentinel is a working prototype and has some limitations:
+The current version of KernalGuard is a working prototype and has some limitations:
 
 - It currently monitors one process at a time.
-- The heartbeat timeout is configured when the process registers with Sentinel.
+- The heartbeat timeout is configured when the process registers with KernalGuard.
 - The kernel event queue has a fixed size.
 - The current recovery policy mainly focuses on restarting the failed worker process.
-- Sentinel is designed for Linux systems and requires a compatible kernel environment and kernel headers to build the driver.
+- KernalGuard is designed for Linux systems and requires a compatible kernel environment and kernel headers to build the driver.
 - The current implementation is intended as a project prototype rather than a complete production service manager.
 ## Future Enhancements
 
-The current Sentinel implementation is a working prototype, but its architecture can be extended to support larger and more complex systems.
+The current KernalGuard implementation is a working prototype, but its architecture can be extended to support larger and more complex systems.
 
 Possible future enhancements include:
 
-- **Multiple Process Monitoring** – Extend Sentinel to monitor multiple processes at the same time.
+- **Multiple Process Monitoring** – Extend KernalGuard to monitor multiple processes at the same time.
 - **Flexible Recovery Policies** – Support different recovery actions based on the type and severity of failure.
 - **Resource Monitoring** – Monitor CPU and memory usage along with process health.
 - **Configuration Support** – Allow monitoring and timeout settings to be managed through configuration files or command-line tools.
@@ -453,12 +453,12 @@ Possible future enhancements include:
 ## Conclusion
 
 
-Sentinel demonstrates how Linux kernel-space and user-space components can work together to monitor and recover a running process.
+KernalGuard demonstrates how Linux kernel-space and user-space components can work together to monitor and recover a running process.
 
 The system uses heartbeat monitoring to detect process failures, generates events through a custom Linux kernel module, and uses a C++ supervisor to handle process recovery.
 
 The project brings together Linux kernel modules, character devices, IOCTL, process management, and C++ system programming in one practical implementation.
 
-The core workflow of Sentinel is:
+The core workflow of KernalGuard is:
 
 `MONITOR → DETECT → NOTIFY → RECOVER`
